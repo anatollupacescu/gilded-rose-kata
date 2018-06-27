@@ -2,33 +2,16 @@ package main
 
 import "errors"
 
-func main() {
+type Degradable interface {
+	updateQuality()
 }
 
+//regular item
 type item struct {
 	Name            string
 	SellIn          int
 	Quality         int
 	degradationRate int
-}
-
-type ageingItem struct {
-	item
-}
-
-type legendaryItem struct {
-	item
-}
-
-type eventAwareItem struct {
-	item
-	rule10daysTillEventApplied bool
-	rule5daysTillEventApplied  bool
-	ruleEventIsPastApplied     bool
-}
-
-type Degradable interface {
-	updateQuality()
 }
 
 func (i *item) updateQuality() {
@@ -41,6 +24,11 @@ func (i *item) updateQuality() {
 	}
 }
 
+//item with decreasing
+type ageingItem struct {
+	item
+}
+
 func (i *ageingItem) updateQuality() {
 	if i.SellIn == 0 {
 		i.degradationRate *= 2
@@ -51,11 +39,23 @@ func (i *ageingItem) updateQuality() {
 	}
 }
 
+//"Sulfuras"
+type legendaryItem struct {
+	item
+}
+
 func (s *legendaryItem) updateQuality() {
 	//not expected to be sold or decrease in quality
 }
 
 // "Backstage passes"
+type eventAwareItem struct {
+	item
+	rule10daysTillEventApplied bool
+	rule5daysTillEventApplied  bool
+	ruleEventIsPastApplied     bool
+}
+
 func (i *eventAwareItem) updateQuality() {
 
 	applied := false
@@ -85,7 +85,6 @@ func (i *eventAwareItem) updateQuality() {
 	i.SellIn -= 1
 }
 
-// The Quality of an item is never negative and is never more than 50
 func NewItem(name string, sellIn, quality, rate int) (Degradable, error) {
 	if len(name) < 1 {
 		return nil, errors.New("bad Name")
