@@ -75,7 +75,7 @@ func TestSulfurasNeverHasToBeSold(t *testing.T) {
 	i, _ := NewLegendaryItem("sulfuras")
 	i.updateQuality()
 	item := i.(*legendaryItem)
-	if item.Quality != 0 || item.SellIn != 0 {
+	if item.Quality != 80 || item.SellIn != 0 {
 		t.Fail()
 	}
 }

@@ -108,7 +108,7 @@ func NewLegendaryItem(name string) (Degradable, error) {
 	if len(name) < 1 {
 		return nil, errors.New("bad Name")
 	}
-	return &legendaryItem{item{name, 0, 0, 0}}, nil
+	return &legendaryItem{item{name, 0, 80, 0}}, nil
 }
 
 func NewEventAwareItem(name string, sellIn, quality int) (Degradable, error) {
