@@ -125,3 +125,7 @@ func NewShortTermItem(name string, sellIn, quality, rate int) (Degradable, error
 	}
 	return &item{name, sellIn, quality, rate * 2}, nil
 }
+
+func main() {
+
+}

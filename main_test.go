@@ -1,6 +1,27 @@
 package main
 
-import "testing"
+import (
+	"testing"
+
+	. "github.com/smartystreets/goconvey/convey"
+)
+
+func TestSpec(t *testing.T) {
+
+	// Only pass t into top-level Convey calls
+	Convey("Given I have any item", t, func() {
+		i, _ := NewItem("test", 3, 0, 1)
+
+		Convey("When quality is updated", func() {
+			i.updateQuality()
+
+			Convey("The value should be decreased", func() {
+				item := i.(*item)
+				So(item.SellIn, ShouldEqual, 2)
+			})
+		})
+	})
+}
 
 func TestCanNotCreateItemWithBadArguments(t *testing.T) {
 	i, e := NewItem("", 6, 9, 5)
@@ -18,12 +39,6 @@ func TestCanNotCreateItemWithBadArguments(t *testing.T) {
 }
 
 func TestSellInDecreasesByOneDay(t *testing.T) {
-	i, _ := NewItem("test", 3, 0, 1)
-	i.updateQuality()
-	item := i.(*item)
-	if item.SellIn != 2 {
-		t.Fail()
-	}
 }
 
 func TestQualityDecreasesOneUnit(t *testing.T) {
