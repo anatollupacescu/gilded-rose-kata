@@ -40,7 +40,7 @@ func TestQualityIsAlwaysBetween0and50(t *testing.T) {
 		assert.Equal(t, 0, i.Quality)
 	})
 	t.Run("quality is never more than fifty", func(t *testing.T) {
-		i := rose.NewAgeingItem(rose.Item{"test", 3, 50}, 1)
+		i := rose.NewAgeingItem(rose.Item{Name: "test", SellIn: 3, Quality: 50}, 1)
 		i.UpdateQuality()
 		assert.Equal(t, 50, i.Quality)
 	})
