@@ -1,39 +1,32 @@
-package main
+package rose
 
-import "errors"
-
-type Degradable interface {
-	updateQuality()
+type item struct {
+	Name    string
+	SellIn  int
+	Quality int
 }
 
-//regular item
-type item struct {
-	Name            string
-	SellIn          int
-	Quality         int
+type degradableQualityItem struct {
+	item
 	degradationRate int
 }
 
-func (i *item) updateQuality() {
+func (i *degradableQualityItem) UpdateQuality() {
 	if i.SellIn == 0 {
 		i.degradationRate *= 2
 	}
-	i.SellIn -= 1
+	i.SellIn--
 	if i.Quality > i.degradationRate {
 		i.Quality -= i.degradationRate
 	}
 }
 
-//item with decreasing
 type ageingItem struct {
-	item
+	degradableQualityItem
 }
 
-func (i *ageingItem) updateQuality() {
-	if i.SellIn == 0 {
-		i.degradationRate *= 2
-	}
-	i.SellIn -= 1
+func (i *ageingItem) UpdateQuality() {
+	i.SellIn--
 	if i.Quality+i.degradationRate <= 50 {
 		i.Quality += i.degradationRate
 	}
@@ -44,19 +37,19 @@ type legendaryItem struct {
 	item
 }
 
-func (s *legendaryItem) updateQuality() {
+func (s *legendaryItem) UpdateQuality() {
 	//not expected to be sold or decrease in quality
 }
 
 // "Backstage passes"
 type eventAwareItem struct {
-	item
+	degradableQualityItem
 	rule10daysTillEventApplied bool
 	rule5daysTillEventApplied  bool
 	ruleEventIsPastApplied     bool
 }
 
-func (i *eventAwareItem) updateQuality() {
+func (i *eventAwareItem) UpdateQuality() {
 
 	applied := false
 
@@ -85,47 +78,23 @@ func (i *eventAwareItem) updateQuality() {
 	i.SellIn -= 1
 }
 
-func NewItem(name string, sellIn, quality, rate int) (Degradable, error) {
-	if len(name) < 1 {
-		return nil, errors.New("bad Name")
-	}
-	if quality < 0 || quality > 50 {
-		return nil, errors.New("quality outside limits")
-	}
-	return &item{name, sellIn, quality, rate}, nil
+func NewItem(name string, sellIn, quality, rate int) degradableQualityItem {
+	return degradableQualityItem{item: item{name, sellIn, quality}, degradationRate: rate}
 }
 
-func NewAgeingItem(name string, sellIn, quality, rate int) (Degradable, error) {
-	newItem, e := NewItem(name, sellIn, quality, rate)
-	if e != nil {
-		return nil, e
-	}
-	i := newItem.(*item)
-	return &ageingItem{*i}, nil
+func NewAgeingItem(name string, sellIn, quality, rate int) ageingItem {
+	return ageingItem{degradableQualityItem{item{name, sellIn, quality}, rate}}
 }
 
-func NewLegendaryItem(name string) (Degradable, error) {
-	if len(name) < 1 {
-		return nil, errors.New("bad Name")
-	}
-	return &legendaryItem{item{name, 0, 80, 0}}, nil
+func NewLegendaryItem(name string) legendaryItem {
+	return legendaryItem{item{name, 0, 80}}
 }
 
-func NewEventAwareItem(name string, sellIn, quality int) (Degradable, error) {
-	if len(name) < 1 {
-		return nil, errors.New("bad Name")
-	}
-	item := item{name, sellIn, quality, 1}
-	return &eventAwareItem{item, false, false, false}, nil
+func NewEventAwareItem(name string, sellIn, quality int) eventAwareItem {
+	item := degradableQualityItem{item: item{name, sellIn, quality}, degradationRate: 1}
+	return eventAwareItem{item, false, false, false}
 }
 
-func NewShortTermItem(name string, sellIn, quality, rate int) (Degradable, error) {
-	if len(name) < 1 {
-		return nil, errors.New("bad Name")
-	}
-	return &item{name, sellIn, quality, rate * 2}, nil
-}
-
-func main() {
-
+func NewShortTermItem(name string, sellIn, quality, rate int) degradableQualityItem {
+	return degradableQualityItem{item: item{name, sellIn, quality}, degradationRate: rate * 2}
 }
